@@ -9,7 +9,7 @@
     <h1>Voice Command with Flashlight</h1>
     <button id="start">เริ่มฟังคำสั่ง</button>
     <p id="output">รอฟังคำสั่ง...</p>
-    <p id="status">Flashlight is OFF</p>
+    <p id="status">ไฟฉายปิดอยู่</p>
 
     <script>
         const output = document.getElementById('output');
@@ -26,17 +26,17 @@
                 const capabilities = track.getCapabilities();
 
                 if (!capabilities.torch) {
-                    status.innerText = "Flashlight not supported on this device.";
+                    status.innerText = "อุปกรณ์นี้ไม่รองรับไฟฉาย";
                     return;
                 }
 
                 flashlightOn = !flashlightOn;
                 await track.applyConstraints({ advanced: [{ torch: flashlightOn }] });
 
-                status.innerText = flashlightOn ? "Flashlight is ON" : "Flashlight is OFF";
+                status.innerText = flashlightOn ? "ไฟฉายเปิดแล้ว" : "ไฟฉายปิดอยู่";
             } catch (err) {
                 console.error(err);
-                status.innerText = "Error controlling flashlight.";
+                status.innerText = "เกิดข้อผิดพลาดในการควบคุมไฟฉาย";
             }
         };
 

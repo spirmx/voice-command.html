@@ -9,7 +9,7 @@
     <h1>Voice Command with Flashlight</h1>
     <button id="start">เริ่มฟังคำสั่ง</button>
     <p id="output">รอฟังคำสั่ง...</p>
-    <p id="status">ไฟฉายปิดอยู่</p>
+    <p id="status">Flashlight is OFF</p>
 
     <script>
         const output = document.getElementById('output');
@@ -26,18 +26,34 @@
                 const capabilities = track.getCapabilities();
 
                 if (!capabilities.torch) {
-                    status.innerText = "อุปกรณ์นี้ไม่รองรับไฟฉาย";
+                    status.innerText = "Flashlight not supported on this device.";
                     return;
                 }
 
                 flashlightOn = !flashlightOn;
                 await track.applyConstraints({ advanced: [{ torch: flashlightOn }] });
 
-                status.innerText = flashlightOn ? "ไฟฉายเปิดแล้ว" : "ไฟฉายปิดอยู่";
+                status.innerText = flashlightOn ? "Flashlight is ON" : "Flashlight is OFF";
             } catch (err) {
                 console.error(err);
-                status.innerText = "เกิดข้อผิดพลาดในการควบคุมไฟฉาย";
+                status.innerText = "Error controlling flashlight.";
             }
+        };
+
+        const apps = {
+            "YouTube": "https://www.youtube.com",
+            "LINE": "line://",
+            "Chrome": "googlechrome://",
+            "Play Store": "market://details?id=com.android.vending",
+            "GPT": "https://chat.openai.com",
+            "Free Fire": "intent://launch/#Intent;package=com.dts.freefireth;end",
+            "PUBG": "intent://launch/#Intent;package=com.tencent.ig;end",
+            "Facebook": "fb://",
+            "Instagram": "instagram://",
+            "WhatsApp": "whatsapp://",
+            "Twitter": "twitter://",
+            "Spotify": "spotify://",
+            // เพิ่มแอพอื่นๆ ที่ต้องการ
         };
 
         document.getElementById('start').addEventListener('click', () => {
@@ -54,25 +70,22 @@
                     toggleFlashlight();
                 } else if (command.includes("ปิดไฟฉาย")) {
                     if (flashlightOn) toggleFlashlight();
-                } else if (command.includes("เปิด YouTube")) {
-                    window.open("https://www.youtube.com", "_blank");
-                } else if (command.includes("ค้นหา")) {
-                    const searchQuery = command.replace("ค้นหา", "").trim();
-                    window.open(`https://www.google.com/search?q=${searchQuery}`, "_blank");
-                } else if (command.includes("เปิด LINE")) {
-                    window.location.href = "line://";
-                } else if (command.includes("เปิด Chrome")) {
-                    window.location.href = "googlechrome://";
-                } else if (command.includes("เปิด Play Store")) {
-                    window.location.href = "market://details?id=com.android.vending";
-                } else if (command.includes("เปิด GPT")) {
-                    window.open("https://chat.openai.com", "_blank");
-                } else if (command.includes("เปิดเกม Free Fire")) {
-                    window.location.href = "intent://launch/#Intent;package=com.dts.freefireth;end";
-                } else if (command.includes("เปิดเกม PUBG")) {
-                    window.location.href = "intent://launch/#Intent;package=com.tencent.ig;end";
                 } else {
-                    output.textContent = "ขอโทษ ฉันไม่เข้าใจคำสั่งนี้";
+                    let appFound = false;
+
+                    // ตรวจสอบคำสั่งให้เปิดแอพ
+                    for (let app in apps) {
+                        if (command.includes(app)) {
+                            window.open(apps[app], "_blank");
+                            appFound = true;
+                            break;
+                        }
+                    }
+
+                    // ถ้าหากไม่พบคำสั่ง
+                    if (!appFound) {
+                        output.textContent = "ขอโทษ ฉันไม่เข้าใจคำสั่งนี้";
+                    }
                 }
             };
         });

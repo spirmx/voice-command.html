@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Command with Flashlight</title>
+</head>
+<body>
+    <h1>Voice Command with Flashlight</h1>
+    <button id="start">เริ่มฟังคำสั่ง</button>
+    <p id="output">รอฟังคำสั่ง...</p>
+    <p id="status">Flashlight is OFF</p>
+
+    <script>
+        const output = document.getElementById('output');
+        const status = document.getElementById('status');
+        let flashlightOn = false;
+        let track;
+
+        const toggleFlashlight = async () => {
+            try {
+                if (!track) {
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                    track = stream.getVideoTracks()[0];
+                }
+                const capabilities = track.getCapabilities();
+
+                if (!capabilities.torch) {
+                    status.innerText = "Flashlight not supported on this device.";
+                    return;
+                }
+
+                flashlightOn = !flashlightOn;
+                await track.applyConstraints({ advanced: [{ torch: flashlightOn }] });
+
+                status.innerText = flashlightOn ? "Flashlight is ON" : "Flashlight is OFF";
+            } catch (err) {
+                console.error(err);
+                status.innerText = "Error controlling flashlight.";
+            }
+        };
+
+        document.getElementById('start').addEventListener('click', () => {
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = 'th-TH'; // ตั้งเป็นภาษาไทย
+            recognition.start();
+
+            recognition.onresult = (event) => {
+                const command = event.results[0][0].transcript;
+                output.textContent = `คุณพูดว่า: ${command}`;
+
+                // ตรวจสอบคำสั่งเสียง
+                if (command.includes("เปิดไฟฉาย")) {
+                    toggleFlashlight();
+                } else if (command.includes("ปิดไฟฉาย")) {
+                    if (flashlightOn) toggleFlashlight();
+                } else if (command.includes("เปิด YouTube")) {
+                    window.open("https://www.youtube.com", "_blank");
+                } else if (command.includes("ค้นหา")) {
+                    const searchQuery = command.replace("ค้นหา", "").trim();
+                    window.open(`https://www.google.com/search?q=${searchQuery}`, "_blank");
+                } else if (command.includes("เปิด LINE")) {
+                    window.location.href = "line://";
+                } else if (command.includes("เปิด Chrome")) {
+                    window.location.href = "googlechrome://";
+                } else if (command.includes("เปิด Play Store")) {
+                    window.location.href = "market://details?id=com.android.vending";
+                } else if (command.includes("เปิด GPT")) {
+                    window.open("https://chat.openai.com", "_blank");
+                } else if (command.includes("เปิดเกม Free Fire")) {
+                    window.location.href = "intent://launch/#Intent;package=com.dts.freefireth;end";
+                } else if (command.includes("เปิดเกม PUBG")) {
+                    window.location.href = "intent://launch/#Intent;package=com.tencent.ig;end";
+                } else {
+                    output.textContent = "ขอโทษ ฉันไม่เข้าใจคำสั่งนี้";
+                }
+            };
+        });
+    </script>
+</body>
+</html>
